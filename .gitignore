@@ -1,0 +1,28 @@
+# Ignore temporary project files
+chat.py
+requirements.txt
+README.md
+tests/
+
+# Models
+models/
+*.gguf
+
+# Data
+data/
+*.pdf
+
+# Database
+chroma_db/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.env
+llamaenv/
+
+# IDE
+.vscode/
+.idea/
+*.swp

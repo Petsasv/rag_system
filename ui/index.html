@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tutor - Java OOP</title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Header (fixed) -->
+    <header class="header">
+        <div class="header-content">
+            <h1>🎓 AI Tutor - Java OOP</h1>
+            <div class="header-controls">
+                <button id="darkModeToggle" class="icon-btn" title="Toggle Dark Mode">
+                    <span class="icon">🌙</span>
+                </button>
+                <button onclick="resetChat()" class="reset-btn">
+                    <span class="icon">🗑️</span>
+                    <span class="text">Νέα Συνομιλία</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main class="chat-main" id="chatContainer">
+        <div class="welcome-message">
+            <div class="avatar bot-avatar">🤖</div>
+            <div class="message-bubble assistant-bubble">
+                Γεια σου! Είμαι ο AI Tutor σου για Java OOP. Ρώτησέ με οτιδήποτε για Αντικειμενοστραφή Προγραμματισμό!
+            </div>
+        </div>
+    </main>
+
+    <!-- Input -->
+    <footer class="input-footer">
+        <div class="input-wrapper">
+            <textarea 
+                id="messageInput" 
+                placeholder="Ρωτήστε κάτι για Java OOP..."
+                rows="1"
+            ></textarea>
+            <button id="sendButton" class="send-btn">
+                <span class="icon">📤</span>
+            </button>
+        </div>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

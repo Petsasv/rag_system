@@ -6,19 +6,18 @@ import logging
 from pdfminer.high_level import extract_text
 import tiktoken
 
-# Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class Chunk:
     text: str
     metadata: Dict[str, Any]
 
+
 def extract_text_from_pdf(pdf_path: str) -> str:
-    """
-    Εξαγωγή πρωτογενούς κειμένου από το PDF.
-    """
+    """Εξαγωγή κειμένου από το PDF."""
     try:
         text = extract_text(pdf_path)
         return text or ""
@@ -26,11 +25,9 @@ def extract_text_from_pdf(pdf_path: str) -> str:
         logger.error(f"Failed to extract text from {pdf_path}: {e}")
         return ""
 
-def clean_text(text: str) -> str:
-    """
-    Καθαρισμός και κανονικοποίηση κειμένου.
-    """
 
+def clean_text(text: str) -> str:
+    """Καθαρισμός και κανονικοποίηση κειμένου."""
     if not text:
         return ""
 
@@ -38,26 +35,23 @@ def clean_text(text: str) -> str:
     text = text.replace("\r\n", "\n").replace("\r", "\n")
 
     # Αφαίρεση common PDF artifacts (page numbers, headers)
-    # Παράδειγμα: "Σελίδα 5" ή "Page 5"
     text = re.sub(r"(?i)(σελίδα|page)\s*\d+", "", text)
-
-    # Αφαίρεση μεμονωμένων αριθμών σε ξεχωριστές γραμμές (συνήθως page numbers)
     text = re.sub(r"\n\s*\d+\s*\n", "\n", text)
 
-    # Κανονικοποίηση κενών (whitespace) για μείωση των άχρηστων tokens
+    # Κανονικοποίηση κενών
     text = re.sub(r"[ \t]+", " ", text)
 
-    # Διόρθωση συλλαβισμού PDF (π.χ. "προ-\nγραμμα" -> "προγραμμα")
-    # Πολύ σημαντικό για να μην σπάνε οι τεχνικοί όροι
+    # Διόρθωση συλλαβισμού PDF
     text = re.sub(r"-\n(?=\w)", "", text)
 
-    # Περιορισμός πολλαπλών κενών γραμμών που σπαταλούν το context window
+    # Περιορισμός πολλαπλών κενών γραμμών
     text = re.sub(r"\n{3,}", "\n\n", text)
 
-    # Αφαίρεση περιττών κενών στην αρχή και το τέλος κάθε γραμμής
+    # Αφαίρεση περιττών κενών
     text = re.sub(r" *\n *", "\n", text)
 
     return text.strip()
+
 
 def chunk_text(
     text: str,
@@ -68,20 +62,14 @@ def chunk_text(
     tokenizer_name: str = "cl100k_base",
     extra_metadata: Optional[Dict[str, Any]] = None,
 ) -> List[Chunk]:
-    """
-    Χωρίζει το κείμενο σε τμήματα με semantic awareness.
-    """
-    # Χρήση του cl100k_base (tokenizer)
+    """Χωρίζει το κείμενο σε τμήματα με semantic awareness."""
     tokenizer = tiktoken.get_encoding(tokenizer_name)
     extra_metadata = extra_metadata or {}
 
     def tok_len(s: str) -> int:
-        """
-        Βοηθητική συνάρτηση μέτρησης tokens.
-        """
         return len(tokenizer.encode(s))
-    
-    # Χωρισμός σε παραγράφους με βάση τις διπλές αλλαγές γραμμής
+
+    # Χωρισμός σε παραγράφους
     paragraphs = [p.strip() for p in re.split(r"\n\n+", text) if p.strip()]
     if not paragraphs:
         return []
@@ -91,7 +79,6 @@ def chunk_text(
     cur_toks = 0
 
     def flush():
-        """Οριστικοποίηση ενός chunk και προσθήκη στη λίστα."""
         nonlocal cur_parts, cur_toks
         if cur_parts:
             raw_chunks.append("\n\n".join(cur_parts).strip())
@@ -103,7 +90,6 @@ def chunk_text(
         if p_toks == 0:
             continue
 
-        # Αν μια παράγραφος από μόνη της υπερβαίνει το όριο, τη χωρίζουμε αναγκαστικά
         if p_toks > max_tokens:
             flush()
             toks = tokenizer.encode(p)
@@ -113,19 +99,17 @@ def chunk_text(
                     raw_chunks.append(part)
             continue
 
-        # Προσθήκη παραγράφου στο τρέχον chunk αν χωράει στο 'budget' των tokens
         if cur_toks + p_toks <= max_tokens:
             cur_parts.append(p)
             cur_toks += p_toks
         else:
-            # Το chunk γέμισε, το αποθηκεύουμε και ξεκινάμε νέο
             flush()
             cur_parts = [p]
             cur_toks = p_toks
 
     flush()
 
-    # Εφαρμογή επικάλυψης (overlap) μεταξύ των chunks.
+    # Εφαρμογή overlap
     if overlap_tokens > 0 and len(raw_chunks) > 1:
         overlapped: List[str] = []
         prev_tail = []
@@ -134,25 +118,31 @@ def chunk_text(
             if i == 0:
                 overlapped.append(ch)
             else:
-                # Προσάρτηση της 'ουράς' του προηγούμενου chunk
                 prefix = tokenizer.decode(prev_tail).strip()
-                overlapped.append((prefix + "\n" + ch).strip() if prefix else ch)
+                overlapped.append((prefix + "\n\n" + ch).strip() if prefix else ch)
 
-            # Ενημέρωση της 'ουράς' για το επόμενο chunk
-            prev_tail = ch_toks[-overlap_tokens:] if len(ch_toks) > overlap_tokens else ch_toks
+            prev_tail = (
+                ch_toks[-overlap_tokens:] if len(ch_toks) > overlap_tokens else ch_toks
+            )
         raw_chunks = overlapped
 
-    # Δημιουργία τελικών αντικειμένων Chunk με metadata
+    # Δημιουργία τελικών chunks
     out: List[Chunk] = []
     for idx, ch in enumerate(raw_chunks):
         md = {
             "source": source,
             "chunk_idx": idx,
             "token_count": tok_len(ch),
-            **extra_metadata
+            **extra_metadata,
         }
         out.append(Chunk(text=ch, metadata=md))
+
+    if out:
+        avg_tokens = sum(c.metadata["token_count"] for c in out) / len(out)
+        logger.info(f"{source}: {len(out)} chunks, avg {avg_tokens:.0f} tokens")
+
     return out
+
 
 def chunk_pdf(
     pdf_path: str,
@@ -162,27 +152,19 @@ def chunk_pdf(
     overlap_tokens: int = 40,
     extra_metadata: Optional[Dict[str, Any]] = None,
 ) -> List[Chunk]:
-    """
-    Κύρια συνάρτηση ενός αρχείου PDF.
-    """
+    """Κύρια συνάρτηση chunking ενός αρχείου PDF."""
     raw = extract_text_from_pdf(pdf_path)
     if not raw:
         logger.warning(f"No text extracted from {pdf_path}")
         return []
-    
+
     cleaned = clean_text(raw)
     source = source_name or pdf_path
 
-    chunks = chunk_text(
+    return chunk_text(
         cleaned,
         source=source,
         max_tokens=max_tokens,
         overlap_tokens=overlap_tokens,
         extra_metadata=extra_metadata,
     )
-
-    if chunks:
-        avg_tokens = sum(c.metadata["token_count"] for c in chunks) / len(chunks)
-        logger.info(f"{source}: {len(chunks)} chunks, avg {avg_tokens:.0f} tokens")
-
-    return chunks
