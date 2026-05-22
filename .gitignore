@@ -1,9 +1,3 @@
-# Ignore temporary project files
-chat.py
-requirements.txt
-README.md
-tests/
-
 # Models
 models/
 *.gguf
@@ -15,14 +9,28 @@ data/
 # Database
 chroma_db/
 
-# Python cache
+# Python
 __pycache__/
 *.pyc
 *.pyo
-.env
+*.pyd
+.Python
+
+# Virtual Environments
+venv/
 llamaenv/
+env/
+.env
 
 # IDE
 .vscode/
 .idea/
 *.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

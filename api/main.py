@@ -28,12 +28,10 @@ from src.utils import is_small_talk, rewrite_query_with_context
 
 retriever = None
 llm = None
-conv_managers = {}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup and shutdown event handler."""
     global retriever, llm
 
     retriever = Retriever()
@@ -81,12 +79,22 @@ class ResetRequest(BaseModel):
     session_id: str
 
 
+_conv_manager_singleton = None
+
+
+def get_conv_manager() -> ConversationManager:
+    global _conv_manager_singleton
+    if _conv_manager_singleton is None:
+        _conv_manager_singleton = ConversationManager(max_token_limit=1000)
+        _conv_manager_singleton.set_llm(llm)
+    return _conv_manager_singleton
+
+
 def get_or_create_conv_manager(session_id: str) -> ConversationManager:
-    """Δημιουργία ή retrieval του ConversationManager."""
-    if session_id not in conv_managers:
-        conv_managers[session_id] = ConversationManager(max_turns=3)
-        conv_managers[session_id].create_session(session_id)
-    return conv_managers[session_id]
+    mgr = get_conv_manager()
+    if session_id not in mgr.sessions:
+        mgr.create_session(session_id)
+    return mgr
 
 
 # ENDPOINTS
@@ -110,9 +118,15 @@ async def chat(request: ChatRequest):
         sources = []
 
         if is_small_talk(user_message):
+            history_context = conv_manager.format_history_for_context(session_id)
+            content = (
+                f"{history_context}\n\n{user_message}"
+                if history_context
+                else user_message
+            )
             messages = [
                 {"role": "system", "content": SYSTEM_GENERAL},
-                {"role": "user", "content": user_message},
+                {"role": "user", "content": content},
             ]
         else:
             final_query = rewrite_query_with_context(
@@ -180,14 +194,9 @@ async def chat(request: ChatRequest):
 
 @app.post("/reset")
 async def reset_session(request: ResetRequest):
-    """Reset conversation history."""
-    session_id = request.session_id
-
-    if session_id in conv_managers:
-        conv_managers[session_id].clear_session(session_id)
-        return {"status": "ok", "message": "Session reset"}
-
-    return {"status": "ok", "message": "Session not found"}
+    mgr = get_conv_manager()
+    mgr.clear_session(request.session_id)
+    return {"status": "ok", "message": "Session reset"}
 
 
 @app.get("/health")
@@ -196,5 +205,5 @@ async def health():
     return {
         "status": "healthy",
         "models_loaded": retriever is not None and llm is not None,
-        "active_sessions": len(conv_managers),
+        "active_sessions": len(get_conv_manager().sessions),
     }

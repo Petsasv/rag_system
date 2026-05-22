@@ -78,7 +78,7 @@ class Retriever:
         for s, _, m in ranked[:5]:
             print(f"  {s:.4f} | {m.get('source','?')} chunk {m.get('chunk_idx','?')}")
 
-        logger.info(f"Top 3 scores: {[f'{s:.3f}' for s, _, _ in ranked[:3]]}")
+        logger.info(f"Top 3 scores: {[f'{s:.3f}' for s, _, _ in ranked[:4]]}")
 
         return ranked
 

@@ -1,0 +1,33 @@
+# === Core FastAPI ===
+fastapi==0.129.0
+uvicorn[standard]==0.38.0
+python-multipart
+
+# === LLM ===
+# Για GPU support στο laptop, εγκατάστησε ξεχωριστά:
+# pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121
+llama-cpp-python==0.3.16
+
+# === Embeddings & Reranking ===
+sentence-transformers==5.2.0
+torch==2.9.1
+
+# === Vector Database ===
+chromadb==1.3.5
+
+# === Text Processing ===
+tiktoken==0.12.0
+pdfminer.six==20251107
+
+# === Conversation Memory ===
+langchain==0.3.25
+langchain-core==0.3.83
+langchain-community==0.3.24
+
+# === Utilities ===
+tqdm==4.67.1
+python-dotenv==1.2.1
+
+# === Analysis (για eval.py) ===
+pandas==2.3.3
+matplotlib==3.10.8
