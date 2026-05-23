@@ -62,7 +62,7 @@
 ### Βήμα 1 — Clone
 
 ```bash
-git clone https://github.com/<username>/llama3_2-RAG.git
+git clone https://github.com/Petsasv/rag_system.git
 cd llama3_2-RAG
 ```
 
