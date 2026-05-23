@@ -3,7 +3,7 @@
 > Ελληνικός εκπαιδευτικός βοηθός βασισμένος σε **RAG** (Retrieval-Augmented Generation) για το μάθημα **Αντικειμενοστραφής Προγραμματισμός**.
 
 **Πτυχιακή Εργασία** · ΔΙ.ΠΑ.Ε. · Τμήμα Μηχανικών Πληροφορικής και Ηλεκτρονικών Συστημάτων  
-  Πετσαλάκης Βασίλης (ΑΜ 185328) · 👨‍🏫 Επιβλέπων: Καθ. Παναγιώτης Αδαμίδης
+ Πετσαλάκης Βασίλης (ΑΜ 185328) · Επιβλέπων: Καθ. Παναγιώτης Αδαμίδης
 
 ---
 
@@ -37,7 +37,7 @@
    Query ──►  Rewriting  ──►  Retrieval  ──►  Reranking (BGE)  ──►  LLM (Krikri)  ──►  Response
 ```
 
-### 🔧 Τεχνολογικό Stack
+### Τεχνολογικό Stack
 
 | Συνιστώσα | Επιλογή |
 |-----------|---------|
@@ -50,7 +50,7 @@
 
 ---
 
-## 📦 Εγκατάσταση
+## Εγκατάσταση
 
 ### Προαπαιτούμενα
 
@@ -84,7 +84,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Βήμα 4 — GPU Support ⚠️
+### Βήμα 4 — GPU Support
 
 > **Κρίσιμο βήμα.** Χωρίς αυτό, το σύστημα θα τρέχει αργά σε CPU.
 
@@ -106,9 +106,20 @@ python -c "import torch; print('CUDA:', torch.cuda.is_available())"
 
 Πρέπει να εμφανιστεί `CUDA: True`.
 
-### Βήμα 5 — Λήψη Μοντέλου
+### Βήμα 5 — Λήψη Μοντέλου (5GB)
 
-Κατεβάστε το `llama-krikri-8b-instruct-q4_k_m.gguf` από το [Hugging Face](https://huggingface.co/ilsp/Llama-Krikri-8B-Instruct-GGUF) και τοποθετήστε το στο φάκελο:
+Κατεβάστε το αρχείο **`llama-krikri-8b-instruct-q4_k_m.gguf`** από το Hugging Face:
+
+**[Direct Download Link](https://huggingface.co/ilsp/Llama-Krikri-8B-Instruct-GGUF/resolve/main/llama-krikri-8b-instruct-q4_k_m.gguf)**
+
+ή μέσω CLI:
+
+```bash
+pip install huggingface_hub
+huggingface-cli download ilsp/Llama-Krikri-8B-Instruct-GGUF llama-krikri-8b-instruct-q4_k_m.gguf --local-dir models/
+```
+
+Τοποθετήστε το αρχείο στο φάκελο:
 
 ```
 models/llama-krikri-8b-instruct-q4_k_m.gguf
@@ -128,8 +139,6 @@ data/pdfs/
 python -m src.build_index
 ```
 
-> Διαρκεί ~5-10 λεπτά την πρώτη φορά. Δεν χρειάζεται επανάληψη, εκτός αν αλλάξουν τα PDFs.
-
 ---
 
 ## Εκτέλεση
@@ -138,4 +147,4 @@ python -m src.build_index
 uvicorn api.main:app --reload
 ```
 
-Άνοιξε browser στο 👉 **http://localhost:8000**
+Άνοιξε browser στο **http://localhost:8000**
