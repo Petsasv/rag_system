@@ -121,30 +121,34 @@ class ConversationManager:
         return "\n".join(parts)
 
     def needs_rewriting(self, session_id: str, query: str) -> bool:
-        """Unchanged logic — checks if query needs context to be standalone."""
+        """Checks if query needs context to be standalone."""
         history = self.get_history(session_id)
         if not history:
             return False
 
-        query_lower = query.lower()
+        query_lower = query.lower().strip()
+
+        # ΑΛΛΑΓΗ: Προστέθηκαν τα pronouns "την", "τον", "το", "τα" κ.ά.
         strong_indicators = [
-            "αυτό",
-            "εκείνο",
-            "αυτή",
-            "εκείνη",
-            "αυτοί",
-            "ακόμη παράδειγμα",
-            "άλλο παράδειγμα",
-            "επίσης",
-            "και αυτό",
-            "το ίδιο",
-            "παρόμοιο",
+            "αυτό", "εκείνο", "αυτή", "εκείνη", "αυτοί", "αυτά",
+            "την", "τον", "το ", "τη ",          # ← personal pronouns (object)
+            "ακόμη παράδειγμα", "άλλο παράδειγμα",
+            "επίσης", "και αυτό", "το ίδιο", "παρόμοιο",
         ]
         if any(ind in query_lower for ind in strong_indicators):
             return True
 
-        weak_indicators = ["παράδειγμα", "μπορείς", "δώσε μου", "πες μου", "και"]
+        # ΑΛΛΑΓΗ: Προστέθηκαν σύντομες καταφατικές/συνέχειες
+        short_continuations = [
+            "ναι", "οκ", "εντάξει", "συνέχισε", "και",
+            "γιατί", "πώς", "πως",
+        ]
         words = query.split()
+        # Πολύ σύντομες απαντήσεις (≤3 λέξεις) που είναι συνέχεια
+        if len(words) <= 3 and any(ind in query_lower for ind in short_continuations):
+            return True
+
+        weak_indicators = ["παράδειγμα", "μπορείς", "δώσε μου", "πες μου"]
         if len(words) < 6 and any(ind in query_lower for ind in weak_indicators):
             return True
 

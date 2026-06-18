@@ -7,7 +7,7 @@
     
     --text-primary: #2e3338;
     --text-secondary: #6e6e80;
-    --text-light: #afafaf;
+    --text-light: #767680;
     
     --user-bg: #2d333b;
     --user-text: #ffffff;
@@ -32,7 +32,7 @@ body.dark-mode {
     
     --text-primary: #ececec;
     --text-secondary: #b0b0b0;
-    --text-light: #707070;
+    --text-light: #8a8a8a;
     
     --user-bg: #3a3a3a;
     --assistant-bg: #2a2a2a;
@@ -252,7 +252,8 @@ body {
     z-index: 10;
 }
 
-.code-block-wrapper:hover .copy-code-button {
+.code-block-wrapper:hover .copy-code-button,
+.copy-code-button:focus-visible {
     opacity: 1;
 }
 
@@ -268,31 +269,32 @@ body {
 }
 
 pre {
-    background: var(--code-bg) !important;
-    color: var(--code-text) !important;
-    padding: 14px !important;
-    border-radius: 8px !important;
-    overflow-x: auto !important;
-    margin: 0 !important;
-    font-size: 13px !important;
-    line-height: 1.5 !important;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 code {
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace !important;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
 }
 
 .inline-code {
-    background: rgba(0, 0, 0, 0.06) !important;
-    color: #c7254e !important;
-    padding: 2px 5px !important;
-    border-radius: 3px !important;
-    font-size: 0.9em !important;
+    background: rgba(0, 0, 0, 0.06);
+    color: #c7254e;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
 }
 
 body.dark-mode .inline-code {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #ff6b9d !important;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ff6b9d;
 }
 
 /* ===== INPUT FOOTER ===== */
@@ -439,5 +441,16 @@ body.dark-mode .inline-code {
     
     .message-bubble {
         max-width: 85%;
+    }
+}
+
+/* ===== REDUced MOTION (accessibility) ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
     }
 }

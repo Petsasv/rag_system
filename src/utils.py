@@ -49,27 +49,32 @@ def rewrite_query_with_context(
 
     rewrite_prompt = f"""Δίνεται ιστορικό συνομιλίας και νέα ερώτηση.
 
-            ΙΣΤΟΡΙΚΟ:
-            {history_text}
+ΙΣΤΟΡΙΚΟ:
+{history_text}
 
-            ΝΕΑ ΕΡΩΤΗΣΗ: {current_query}
+ΝΕΑ ΕΡΩΤΗΣΗ: {current_query}
 
-            Ξαναγράψε την ερώτηση ώστε να είναι standalone.
+Ξαναγράψε την ερώτηση ώστε να είναι αυτοτελής (standalone), διατηρώντας το θέμα από το ιστορικό.
 
-            ΠΑΡΑΔΕΙΓΜΑ:
-            Ιστορικό: "Τι είναι interface;"
-            Νέα: "Δώσε μου παράδειγμα"
-            Standalone: "Δώσε μου παράδειγμα interface στην Java"
+ΠΑΡΑΔΕΙΓΜΑ 1:
+Ιστορικό: Τι είναι interface;
+Νέα: Δώσε μου παράδειγμα
+Standalone: Δώσε μου παράδειγμα interface στην Java
 
-            ΑΠΑΝΤΗΣΗ ΜΟΝΟ ΜΕ ΤΗ STANDALONE ΕΡΩΤΗΣΗ:"""
+ΠΑΡΑΔΕΙΓΜΑ 2:
+Ιστορικό: Τι είναι μία εξαίρεση;
+Νέα: Πώς την χρησιμοποιώ στον κώδικα;
+Standalone: Πώς χρησιμοποιώ μια εξαίρεση στον κώδικα Java;
+
+Standalone:"""
 
     try:
         messages = [{"role": "user", "content": rewrite_prompt}]
         out = llm.create_chat_completion(
             messages=messages,
             temperature=0.0,
-            max_tokens=100,
-            stop=["\n", "Standalone:"],
+            max_tokens=60,
+            stop=["\n", "Φοιτητής:", "Καθηγητής:"],
         )
         rewritten = (
             out["choices"][0]["message"]["content"]
@@ -77,11 +82,11 @@ def rewrite_query_with_context(
             .replace('"', "")
             .replace("'", "")
         )
-
-        if rewritten and rewritten != current_query:
+        if rewritten and len(rewritten) > 5 and rewritten != current_query:
             logger.info(f"Query rewritten: '{current_query}' → '{rewritten}'")
             return rewritten
 
+        logger.debug(f"Rewriting skipped, using original: '{current_query}'")
         return current_query
 
     except Exception as e:

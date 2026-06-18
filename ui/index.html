@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Tutor - Java OOP</title>
     <link rel="icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css?v=2">
 </head>
 <body>
     <!-- Header (fixed) -->
@@ -13,11 +13,13 @@
         <div class="header-content">
             <h1>🎓 AI Tutor - Java OOP</h1>
             <div class="header-controls">
-                <button id="darkModeToggle" class="icon-btn" title="Toggle Dark Mode">
-                    <span class="icon">🌙</span>
+                <button id="darkModeToggle" class="icon-btn" type="button"
+                        aria-label="Εναλλαγή σκοτεινής λειτουργίας"
+                        title="Εναλλαγή σκοτεινής λειτουργίας">
+                    <span class="icon" aria-hidden="true">🌙</span>
                 </button>
-                <button onclick="resetChat()" class="reset-btn">
-                    <span class="icon">🗑️</span>
+                <button id="resetButton" class="reset-btn" type="button" aria-label="Νέα συνομιλία">
+                    <span class="icon" aria-hidden="true">🗑️</span>
                     <span class="text">Νέα Συνομιλία</span>
                 </button>
             </div>
@@ -27,7 +29,7 @@
     <!-- Chat Area -->
     <main class="chat-main" id="chatContainer">
         <div class="welcome-message">
-            <div class="avatar bot-avatar">🤖</div>
+            <div class="avatar bot-avatar" aria-hidden="true">🤖</div>
             <div class="message-bubble assistant-bubble">
                 Γεια σου! Είμαι ο AI Tutor σου για Java OOP. Ρώτησέ με οτιδήποτε για Αντικειμενοστραφή Προγραμματισμό!
             </div>
@@ -37,17 +39,18 @@
     <!-- Input -->
     <footer class="input-footer">
         <div class="input-wrapper">
-            <textarea 
-                id="messageInput" 
-                placeholder="Ρωτήστε κάτι για Java OOP..."
+            <textarea
+                id="messageInput"
+                placeholder="Ρωτήστε κάτι για Java ..."
                 rows="1"
+                aria-label="Μήνυμα"
             ></textarea>
-            <button id="sendButton" class="send-btn">
-                <span class="icon">📤</span>
+            <button id="sendButton" class="send-btn" type="button" aria-label="Αποστολή">
+                <span class="icon" aria-hidden="true">📤</span>
             </button>
         </div>
     </footer>
 
-    <script src="/static/script.js"></script>
+    <script src="/static/script.js?v=2"></script>
 </body>
 </html>

@@ -4,9 +4,8 @@ uvicorn[standard]==0.38.0
 python-multipart
 
 # === LLM ===
-# Για GPU support στο laptop, εγκατάστησε ξεχωριστά:
 # pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121
-llama-cpp-python==0.3.16
+# llama-cpp-python==0.3.16
 
 # === Embeddings & Reranking ===
 sentence-transformers==5.2.0
@@ -28,6 +27,6 @@ langchain-community==0.3.24
 tqdm==4.67.1
 python-dotenv==1.2.1
 
-# === Analysis (για eval.py) ===
+# === Analysis ===
 pandas==2.3.3
 matplotlib==3.10.8
